@@ -24,6 +24,13 @@ protected:
 		GTA,
 		DAIBLO,
 	};
+
+	enum class WeaponMode
+	{
+		Hand,
+		Sword,
+		Rifile,
+	};
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -38,6 +45,7 @@ public:
 	UPROPERTY()
 	class UABMyAnim* MyAnim;
 
+public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	bool IsAttacking_Sword;
 
@@ -53,6 +61,11 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowprivateAccess = true))
 	int32 MaxCombo_Sword;
 
+	UPROPERTY(VisibleAnywhere, Category = WEAPON)
+	USkeletalMeshComponent* Weapon;
+
+	UPROPERTY(VisibleAnywhere, Category = WEAPON)
+	USkeletalMeshComponent* WeaponHand;
 private:
 	void ViewChange();
 
@@ -60,25 +73,37 @@ private:
 	void LeftRight(float NewAxisValue);
 	void LookUp(float NewAxisValue);
 	void Turn(float NewAxisValue);
+	void Crouch();
 
 	void AttackSword();
-	void AttackStartState_Sword();
+	void AttackStartComboState_Sword();
 	void AttackEndComboState_Sword();
-	
+
+	void ChangeToHand();
+	void ChangeToSword();
+	void ChangeToRifile();
+
 private:
 	UFUNCTION()
 	void OnAttackSwordMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	void SetControlMode(ControlMode ControlMode);
+	void SetWeapon(WeaponMode WeaponMode) { CurrentWeapon = WeaponMode; }
+
+public:
+	WeaponMode GetCurrentWeapon() { return CurrentWeapon; }
 
 private:
 	ControlMode CurrentControlMode = ControlMode::GTA;
 	FVector		DirectionToMove = FVector::ZeroVector;
+
+	WeaponMode	CurrentWeapon = WeaponMode::Hand;
 
 	float		ArmLengthTo = 0.0f;
 	FRotator	ArmRotationTo = FRotator::ZeroRotator;
 	float		ArmLengthSpeed = 0.0f;
 	float		ArmRotationSpeed = 0.0f;
 
+	int32		IsCrouch = 0;
 };

@@ -2,6 +2,7 @@
 
 
 #include "ABMyAnim.h"
+#include "ABMyCharacter.h"
 
 UABMyAnim::UABMyAnim()
 {
@@ -19,6 +20,8 @@ UABMyAnim::UABMyAnim()
 
 	CurrentPawnSpeed = 0.f;
 	IsInAir = false;
+
+	CurrentWeapon = 0;
 }
 
 void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -30,7 +33,7 @@ void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		CurrentPawnSpeed = Pawn->GetVelocity().Size();
 
-		auto Character = Cast<ACharacter>(Pawn);
+		auto Character = Cast<AABMyCharacter>(Pawn);
 		if (Character)
 		{
 			IsInAir = Character->GetMovementComponent()->IsFalling();
@@ -39,8 +42,8 @@ void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
 }
 
 void UABMyAnim::PlayAttackMontage_Sword()
-{
-	if (!Montage_IsPlaying(AttackMontage_Sword))
+{	
+	if (CurrentWeapon == 1)
 	{
 		Montage_Play(AttackMontage_Sword, 1.0f);
 	}
@@ -49,22 +52,22 @@ void UABMyAnim::PlayAttackMontage_Sword()
 void UABMyAnim::JumpToAttackMontageSection_Sword(int32 NewSection)
 {
 	ABCHECK(Montage_IsPlaying(AttackMontage_Sword));
+	ABLOG(Warning, TEXT("%d"), NewSection);
 	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), AttackMontage_Sword);
 }
 
 void UABMyAnim::AnimNotify_AttackHitCheck_Sword()
 {
 	OnAttackHitCheck_Sword.Broadcast();
-	ABLOG(Warning, TEXT("AttackSword!!!"));
 }
 
 void UABMyAnim::AnimNotify_NextAttackCheck_Sword()
 {
 	OnNextAttackCheck_Sword.Broadcast();
-	ABLOG(Warning, TEXT("NextAttack!!!"));
 }
 
 FName UABMyAnim::GetAttackMontageSectionName(int32 Section)
 {
-	return FName(*FString::Printf(TEXT("Attack %d"), Section));
+	ABCHECK(FMath::IsWithinInclusive<int32>(Section, 1, 3), NAME_None);
+	return FName(*FString::Printf(TEXT("Attack%d"), Section));
 }

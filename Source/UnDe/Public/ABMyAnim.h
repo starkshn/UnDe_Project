@@ -9,7 +9,6 @@
 DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate_Sword);
 DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate_Sword);
 
-
 /**
  * 
  */
@@ -18,13 +17,11 @@ class UNDE_API UABMyAnim : public UAnimInstance
 {
 	GENERATED_BODY()
 
-
 public:
 	UABMyAnim();
 
 public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
 
 public:
 	void PlayAttackMontage_Sword();
@@ -38,11 +35,15 @@ private:
 	void AnimNotify_NextAttackCheck_Sword();
 
 public:
-	FOnNextAttackCheckDelegate_Sword OnNextAttackCheck_Sword;
-	FOnAttackHitCheckDelegate_Sword OnAttackHitCheck_Sword;
+	FOnNextAttackCheckDelegate_Sword	OnNextAttackCheck_Sword;
+	FOnAttackHitCheckDelegate_Sword		OnAttackHitCheck_Sword;
 
 private:
 	FName GetAttackMontageSectionName(int32 Section);
+
+public:
+	void SetCurrentWeapon(int32 Weapon) { ABLOG_S(Warning); CurrentWeapon = Weapon; }
+	void SetCrouch(int32 Crouch) { IsCrouch = Crouch; }
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
@@ -51,10 +52,18 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	bool IsInAir;
 
+	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	int32 CurrentWeapon;
+
+
+	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	int32 IsCrouch;
+
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* AttackMontage_Sword;
 
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* AttackMontage_Gun;
-	
+
+
 };
