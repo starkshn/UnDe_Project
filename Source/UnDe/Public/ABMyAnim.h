@@ -8,6 +8,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate_Sword);
 DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate_Sword);
+DECLARE_MULTICAST_DELEGATE(FOnEquipFinishDelegate_Rifile);
 
 /**
  * 
@@ -27,6 +28,8 @@ public:
 	void PlayAttackMontage_Sword();
 	void JumpToAttackMontageSection_Sword(int32 NewSection);
 
+	void PlayEquipMontage_Rifile();
+
 private:
 	UFUNCTION()
 	void AnimNotify_AttackHitCheck_Sword();
@@ -34,9 +37,13 @@ private:
 	UFUNCTION()
 	void AnimNotify_NextAttackCheck_Sword();
 
+	UFUNCTION()
+	void AnimNotify_EquipFinish();
+
 public:
 	FOnNextAttackCheckDelegate_Sword	OnNextAttackCheck_Sword;
 	FOnAttackHitCheckDelegate_Sword		OnAttackHitCheck_Sword;
+	FOnEquipFinishDelegate_Rifile		OnEquipFinishCheck_Rifile;
 
 private:
 	FName GetAttackMontageSectionName(int32 Section);
@@ -55,7 +62,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	int32 CurrentWeapon;
 
-
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	int32 IsCrouch;
 
@@ -65,5 +71,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* AttackMontage_Gun;
 
+	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* EquipCheckMontage_Rifile;
 
 };

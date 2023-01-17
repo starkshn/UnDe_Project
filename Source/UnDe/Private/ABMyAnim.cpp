@@ -18,6 +18,12 @@ UABMyAnim::UABMyAnim()
 		AttackMontage_Gun = ATTACK_GUN_M.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> EQUIP_RIFILE(TEXT("AnimMontage'/Game/Animations/MT_MyRifileEquip.MT_MyRifileEquip'"));
+	if (EQUIP_RIFILE.Succeeded())
+	{
+		EquipCheckMontage_Rifile = EQUIP_RIFILE.Object;
+	}
+
 	CurrentPawnSpeed = 0.f;
 	IsInAir = false;
 
@@ -64,6 +70,21 @@ void UABMyAnim::AnimNotify_AttackHitCheck_Sword()
 void UABMyAnim::AnimNotify_NextAttackCheck_Sword()
 {
 	OnNextAttackCheck_Sword.Broadcast();
+}
+
+void UABMyAnim::AnimNotify_EquipFinish()
+{
+	ABLOG(Warning, TEXT("AnimNotify_EquipFinish"));
+	OnEquipFinishCheck_Rifile.Broadcast();
+}
+
+void UABMyAnim::PlayEquipMontage_Rifile()
+{
+	ABLOG(Warning, TEXT("PlayEquipMontage_Rifile"));
+	if (CurrentWeapon == 2)
+	{
+		Montage_Play(EquipCheckMontage_Rifile, 1.0f);
+	}
 }
 
 FName UABMyAnim::GetAttackMontageSectionName(int32 Section)

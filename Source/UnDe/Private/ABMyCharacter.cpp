@@ -3,6 +3,8 @@
 
 #include "ABMyCharacter.h"
 #include "ABMyAnim.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "ABRifile.h"
 
 // Sets default values
 AABMyCharacter::AABMyCharacter()
@@ -14,7 +16,6 @@ AABMyCharacter::AABMyCharacter()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
-
 
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 	Camera->SetupAttachment(SpringArm);
@@ -35,32 +36,6 @@ AABMyCharacter::AABMyCharacter()
 		GetMesh()->SetAnimInstanceClass(MY_Anim.Class);
 	}
 
-	FName WeaponSocket(TEXT("SocketGun"));
-	if (GetMesh()->DoesSocketExist(WeaponSocket))
-	{
-		Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WEAPON"));
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_WEAPON(TEXT("SkeletalMesh'/Game/FPS_Weapon_Bundle/Weapons/Meshes/Ka47/SK_KA47.SK_KA47'"));
-		if (SK_WEAPON.Succeeded())
-		{
-			Weapon->SetSkeletalMesh(SK_WEAPON.Object);
-		}
-
-		Weapon->SetupAttachment(GetMesh(), WeaponSocket);
-	}
-
-	FName WeaponSocketHand(TEXT("hand_rSocket"));
-	if (GetMesh()->DoesSocketExist(WeaponSocketHand))
-	{
-		WeaponHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WEAPONBACK"));
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_WEAPON(TEXT("SkeletalMesh'/Game/FPS_Weapon_Bundle/Weapons/Meshes/Ka47/SK_KA47.SK_KA47'"));
-		if (SK_WEAPON.Succeeded())
-		{
-			WeaponHand->SetSkeletalMesh(SK_WEAPON.Object);
-		}
-
-		WeaponHand->SetupAttachment(GetMesh(), WeaponSocketHand);
-	}
-
 	// Set
 	SetControlMode(ControlMode::DAIBLO);
 
@@ -79,6 +54,13 @@ AABMyCharacter::AABMyCharacter()
 void AABMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	auto CurRi = GetWorld()->SpawnActor<AABRifile>(FVector::ZeroVector, FRotator::ZeroRotator);
+	CurRifile = CurRi;
+	if(nullptr != CurRifile)
+	{
+		CurRifile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, BackRifileSocket);
+	}
 }
 
 void AABMyCharacter::PostInitializeComponents()
@@ -102,6 +84,16 @@ void AABMyCharacter::PostInitializeComponents()
 				AttackStartComboState_Sword();
 				MyAnim->JumpToAttackMontageSection_Sword(CurrentCombo_Sword);
 			}
+		}
+	);
+
+	// AttackRifile
+	MyAnim->OnEquipFinishCheck_Rifile.AddLambda
+	(
+		[this]() -> void
+		{
+			ABLOG(Warning, TEXT("OnEquipFinish Labmda"));
+			EquipRifile();
 		}
 	);
 }
@@ -323,6 +315,8 @@ void AABMyCharacter::AttackEndComboState_Sword()
 
 void AABMyCharacter::ChangeToHand()
 {
+	if (CurrentWeapon == WeaponMode::Hand) return;
+
 	SetWeapon(WeaponMode::Hand);
 	ABLOG_S(Warning);
 	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
@@ -332,6 +326,8 @@ void AABMyCharacter::ChangeToHand()
 
 void AABMyCharacter::ChangeToSword()
 {
+	if (CurrentWeapon == WeaponMode::Sword) return;
+
 	ABLOG_S(Warning);
 
 	// WeponChangEvent.Broadcast();
@@ -342,18 +338,29 @@ void AABMyCharacter::ChangeToSword()
 
 void AABMyCharacter::ChangeToRifile()
 {
+	if (CurrentWeapon == WeaponMode::Rifile) return;
 	SetWeapon(WeaponMode::Rifile);
-	ABLOG_S(Warning);
-
 	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
 	Anim->SetCurrentWeapon((int)WeaponMode::Rifile);
+	Anim->PlayEquipMontage_Rifile();
+	
+	ABLOG_S(Warning);
+}
+
+void AABMyCharacter::EquipRifile()
+{
+	if (nullptr != CurRifile)
+	{
+		ABLOG_S(Warning);
+		CurRifile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandRightSocket);
+	}
 }
 
 void AABMyCharacter::OnAttackSwordMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	ABLOG_S(Warning);
 	ABCHECK(IsAttacking_Sword);
-	ABCHECK(CurrentCombo_Sword > 0);
+	ABCHECK(CurrentCombo_Sword == 1);
 	IsAttacking_Sword = false;
 	AttackEndComboState_Sword();
 }

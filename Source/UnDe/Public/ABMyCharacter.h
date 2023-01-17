@@ -62,10 +62,14 @@ public:
 	int32 MaxCombo_Sword;
 
 	UPROPERTY(VisibleAnywhere, Category = WEAPON)
-	USkeletalMeshComponent* Weapon;
+	USkeletalMeshComponent* SK_Rifile;
 
 	UPROPERTY(VisibleAnywhere, Category = WEAPON)
-	USkeletalMeshComponent* WeaponHand;
+	USkeletalMeshComponent* SK_Sword;
+
+	UPROPERTY(VisibleAnywhere, Category = WEAPON)
+	class AABRifile* CurRifile;
+
 private:
 	void ViewChange();
 
@@ -82,6 +86,7 @@ private:
 	void ChangeToHand();
 	void ChangeToSword();
 	void ChangeToRifile();
+	void EquipRifile();
 
 private:
 	UFUNCTION()
@@ -106,4 +111,8 @@ private:
 	float		ArmRotationSpeed = 0.0f;
 
 	int32		IsCrouch = 0;
+
+	// Sockets
+	FName		BackRifileSocket = (TEXT("Back_Rifile_Socket"));
+	FName		HandRightSocket = (TEXT("hand_rSocket"));
 };
