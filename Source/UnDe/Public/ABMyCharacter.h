@@ -31,7 +31,7 @@ protected:
 		Sword,
 		Rifile,
 	};
-	
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -77,7 +77,6 @@ private:
 	void LeftRight(float NewAxisValue);
 	void LookUp(float NewAxisValue);
 	void Turn(float NewAxisValue);
-	void Crouch();
 
 	void AttackSword();
 	void AttackStartComboState_Sword();
@@ -86,7 +85,9 @@ private:
 	void ChangeToHand();
 	void ChangeToSword();
 	void ChangeToRifile();
+
 	void EquipRifile();
+	void ReleaseRifile();
 
 private:
 	UFUNCTION()
@@ -95,6 +96,10 @@ private:
 protected:
 	void SetControlMode(ControlMode ControlMode);
 	void SetWeapon(WeaponMode WeaponMode) { CurrentWeapon = WeaponMode; }
+	void SetCrouch();
+
+public:
+	bool GetCrouch() { return (bool)IsCrouch; }
 
 public:
 	WeaponMode GetCurrentWeapon() { return CurrentWeapon; }
@@ -115,4 +120,5 @@ private:
 	// Sockets
 	FName		BackRifileSocket = (TEXT("Back_Rifile_Socket"));
 	FName		HandRightSocket = (TEXT("hand_rSocket"));
+
 };

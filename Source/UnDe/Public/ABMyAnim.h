@@ -9,6 +9,7 @@
 DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate_Sword);
 DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate_Sword);
 DECLARE_MULTICAST_DELEGATE(FOnEquipFinishDelegate_Rifile);
+DECLARE_MULTICAST_DELEGATE(FOnReleaseFinishDelegate_Rifile);
 
 /**
  * 
@@ -40,16 +41,20 @@ private:
 	UFUNCTION()
 	void AnimNotify_EquipFinish();
 
+	UFUNCTION()
+	void AnimNotify_ReleaseRifile();
+
 public:
 	FOnNextAttackCheckDelegate_Sword	OnNextAttackCheck_Sword;
 	FOnAttackHitCheckDelegate_Sword		OnAttackHitCheck_Sword;
 	FOnEquipFinishDelegate_Rifile		OnEquipFinishCheck_Rifile;
+	FOnReleaseFinishDelegate_Rifile OnReleaseFinish_Rifile;
 
 private:
-	FName GetAttackMontageSectionName(int32 Section);
+	FName GetAttackMontageSectionName_Sword(int32 Section);
 
 public:
-	void SetCurrentWeapon(int32 Weapon) { ABLOG_S(Warning); CurrentWeapon = Weapon; }
+	void SetCurrentWeapon(int32 Weapon) { ABLOG(Warning, TEXT("Weapon : %d"), Weapon); CurrentWeapon = Weapon; }
 	void SetCrouch(int32 Crouch) { IsCrouch = Crouch; }
 
 private:
@@ -65,6 +70,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	int32 IsCrouch;
 
+	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	float AxisValueX;
+
+	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	float AxisValueY;
+
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* AttackMontage_Sword;
 
@@ -74,4 +85,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* EquipCheckMontage_Rifile;
 
+private:
+	AABMyCharacter* MyCharacater;
 };

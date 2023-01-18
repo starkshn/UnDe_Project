@@ -43,6 +43,7 @@ void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
 		if (Character)
 		{
 			IsInAir = Character->GetMovementComponent()->IsFalling();
+			IsCrouch = Character->GetCrouch();
 		}
 	}
 }
@@ -55,11 +56,19 @@ void UABMyAnim::PlayAttackMontage_Sword()
 	}
 }
 
+void UABMyAnim::PlayEquipMontage_Rifile()
+{
+	if (CurrentWeapon == 2)
+	{
+		Montage_Play(EquipCheckMontage_Rifile, 1.0f);
+	}
+}
+
 void UABMyAnim::JumpToAttackMontageSection_Sword(int32 NewSection)
 {
 	ABCHECK(Montage_IsPlaying(AttackMontage_Sword));
 	ABLOG(Warning, TEXT("%d"), NewSection);
-	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), AttackMontage_Sword);
+	Montage_JumpToSection(GetAttackMontageSectionName_Sword(NewSection), AttackMontage_Sword);
 }
 
 void UABMyAnim::AnimNotify_AttackHitCheck_Sword()
@@ -74,20 +83,15 @@ void UABMyAnim::AnimNotify_NextAttackCheck_Sword()
 
 void UABMyAnim::AnimNotify_EquipFinish()
 {
-	ABLOG(Warning, TEXT("AnimNotify_EquipFinish"));
 	OnEquipFinishCheck_Rifile.Broadcast();
 }
 
-void UABMyAnim::PlayEquipMontage_Rifile()
+void UABMyAnim::AnimNotify_ReleaseRifile()
 {
-	ABLOG(Warning, TEXT("PlayEquipMontage_Rifile"));
-	if (CurrentWeapon == 2)
-	{
-		Montage_Play(EquipCheckMontage_Rifile, 1.0f);
-	}
+	OnReleaseFinish_Rifile.Broadcast();
 }
 
-FName UABMyAnim::GetAttackMontageSectionName(int32 Section)
+FName UABMyAnim::GetAttackMontageSectionName_Sword(int32 Section)
 {
 	ABCHECK(FMath::IsWithinInclusive<int32>(Section, 1, 3), NAME_None);
 	return FName(*FString::Printf(TEXT("Attack%d"), Section));

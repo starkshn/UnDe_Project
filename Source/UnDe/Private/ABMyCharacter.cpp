@@ -48,6 +48,8 @@ AABMyCharacter::AABMyCharacter()
 	AttackEndComboState_Sword();
 
 	IsCrouch = 0;
+
+	CurrentWeapon = WeaponMode::Hand;
 }
 
 // Called when the game starts or when spawned
@@ -90,11 +92,12 @@ void AABMyCharacter::PostInitializeComponents()
 	// AttackRifile
 	MyAnim->OnEquipFinishCheck_Rifile.AddLambda
 	(
-		[this]() -> void
-		{
-			ABLOG(Warning, TEXT("OnEquipFinish Labmda"));
-			EquipRifile();
-		}
+		[this]() -> void { EquipRifile(); }
+	);
+
+	MyAnim->OnReleaseFinish_Rifile.AddLambda
+	(
+		[this]() -> void { ABLOG_S(Warning); ReleaseRifile(); }
 	);
 }
 
@@ -151,8 +154,8 @@ void AABMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("ViewChange"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ViewChange);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AABMyCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("AttackSword"), EInputEvent::IE_Pressed, this, &AABMyCharacter::AttackSword);
-	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AABMyCharacter::Crouch);
-	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Released, this, &AABMyCharacter::Crouch);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AABMyCharacter::SetCrouch);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Released, this, &AABMyCharacter::SetCrouch);
 
 	PlayerInputComponent->BindAction(TEXT("Hand"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ChangeToHand);
 	PlayerInputComponent->BindAction(TEXT("Sword"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ChangeToSword);
@@ -178,7 +181,6 @@ void AABMyCharacter::UpDown(float NewAxisValue)
 			{
 				AddMovementInput(FRotationMatrix(FRotator(0.f, GetControlRotation().Yaw, 0.f)).GetUnitAxis(EAxis::X), NewAxisValue);
 			}
-
 		}
 		break;
 		case ControlMode::DAIBLO:
@@ -191,7 +193,6 @@ void AABMyCharacter::UpDown(float NewAxisValue)
 			{
 				DirectionToMove.X = NewAxisValue;
 			}
-			
 		}
 		break;
 	}
@@ -199,7 +200,6 @@ void AABMyCharacter::UpDown(float NewAxisValue)
 
 void AABMyCharacter::LeftRight(float NewAxisValue)
 {
-
 	switch (CurrentControlMode)
 	{
 		case ControlMode::GTA:
@@ -253,12 +253,12 @@ void AABMyCharacter::Turn(float NewAxisValue)
 	}
 }
 
-void AABMyCharacter::Crouch()
+void AABMyCharacter::SetCrouch()
 {
 	ABLOG_S(Warning);
 	IsCrouch = (IsCrouch + 1) % 2;
 	// IsCrouch = FMath::Clamp<int32>(IsCrouch + 1, 0, 1);
-	MyAnim->SetCrouch(IsCrouch);
+	// MyAnim->SetCrouch(IsCrouch);
 }
 
 void AABMyCharacter::ViewChange()
@@ -282,6 +282,8 @@ void AABMyCharacter::ViewChange()
 
 void AABMyCharacter::AttackSword()
 {
+	if (CurrentWeapon != WeaponMode::Sword) return;
+
 	if (IsAttacking_Sword)
 	{
 		ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo_Sword, 1, MaxCombo_Sword));
@@ -300,6 +302,8 @@ void AABMyCharacter::AttackSword()
 
 void AABMyCharacter::AttackStartComboState_Sword()
 {
+	if (CurrentWeapon != WeaponMode::Sword) return;
+
 	CanNextCombo_Sword = true;
 	IsComboInputOn_Sword = false;
 	ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo_Sword, 0, MaxCombo_Sword - 1));
@@ -318,19 +322,14 @@ void AABMyCharacter::ChangeToHand()
 	if (CurrentWeapon == WeaponMode::Hand) return;
 
 	SetWeapon(WeaponMode::Hand);
-	ABLOG_S(Warning);
 	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
 	Anim->SetCurrentWeapon((int)WeaponMode::Hand);
-	//WeponChangEvent.Broadcast();
 }
 
 void AABMyCharacter::ChangeToSword()
 {
 	if (CurrentWeapon == WeaponMode::Sword) return;
 
-	ABLOG_S(Warning);
-
-	// WeponChangEvent.Broadcast();
 	SetWeapon(WeaponMode::Sword);
 	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
 	Anim->SetCurrentWeapon((int)WeaponMode::Sword);
@@ -339,28 +338,32 @@ void AABMyCharacter::ChangeToSword()
 void AABMyCharacter::ChangeToRifile()
 {
 	if (CurrentWeapon == WeaponMode::Rifile) return;
+
 	SetWeapon(WeaponMode::Rifile);
 	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
 	Anim->SetCurrentWeapon((int)WeaponMode::Rifile);
 	Anim->PlayEquipMontage_Rifile();
-	
-	ABLOG_S(Warning);
 }
 
 void AABMyCharacter::EquipRifile()
 {
 	if (nullptr != CurRifile)
 	{
-		ABLOG_S(Warning);
 		CurRifile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandRightSocket);
+	}
+}
+
+void AABMyCharacter::ReleaseRifile()
+{
+	if (nullptr != CurRifile)
+	{
+		CurRifile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, BackRifileSocket);
 	}
 }
 
 void AABMyCharacter::OnAttackSwordMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	ABLOG_S(Warning);
 	ABCHECK(IsAttacking_Sword);
-	ABCHECK(CurrentCombo_Sword == 1);
 	IsAttacking_Sword = false;
 	AttackEndComboState_Sword();
 }
