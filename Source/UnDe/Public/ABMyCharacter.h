@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "ABMyCharacter.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnPressedUpDown, bool);
+DECLARE_DELEGATE_OneParam(FOnPressedLeftRight, bool);
+
 UCLASS()
 class UNDE_API AABMyCharacter : public ACharacter
 {
@@ -31,6 +34,10 @@ protected:
 		Sword,
 		Rifile,
 	};
+
+public:
+	FOnPressedUpDown	UpDownEvent;
+	FOnPressedLeftRight LeftRightEvent;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -77,6 +84,11 @@ private:
 	void LeftRight(float NewAxisValue);
 	void LookUp(float NewAxisValue);
 	void Turn(float NewAxisValue);
+
+	void UpDownP();
+	void UpDownR();
+	void LeftRightP();
+	void LeftRightR();
 
 	void AttackSword();
 	void AttackStartComboState_Sword();

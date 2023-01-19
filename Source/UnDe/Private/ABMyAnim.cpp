@@ -28,6 +28,19 @@ UABMyAnim::UABMyAnim()
 	IsInAir = false;
 
 	CurrentWeapon = 0;
+
+	UpDownEvent = false; 
+	LeftRightEvent = false;
+}
+
+void UABMyAnim::NativeBeginPlay()
+{
+	Super::NativeBeginPlay();
+
+	auto Pawn = TryGetPawnOwner();
+	MyCharacater = Cast<AABMyCharacter>(Pawn);
+	MyCharacater->UpDownEvent.BindUObject(this, &UABMyAnim::SetUpDownEvent);
+	MyCharacater->LeftRightEvent.BindUObject(this, &UABMyAnim::SetLeftRightEvent);
 }
 
 void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -47,6 +60,8 @@ void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
 		}
 	}
 }
+
+
 
 void UABMyAnim::PlayAttackMontage_Sword()
 {	

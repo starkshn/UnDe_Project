@@ -41,7 +41,7 @@ AABMyCharacter::AABMyCharacter()
 
 	ArmLengthSpeed = 3.f;
 	ArmRotationSpeed = 10.f;
-	GetCharacterMovement()->JumpZVelocity = 400.f;
+	GetCharacterMovement()->JumpZVelocity = 500.f;
 
 	IsAttacking_Sword = false;
 	MaxCombo_Sword = 3;
@@ -161,6 +161,11 @@ void AABMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("Sword"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ChangeToSword);
 	PlayerInputComponent->BindAction(TEXT("Rifile"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ChangeToRifile);
 
+	PlayerInputComponent->BindAction(TEXT("UpDownP"), EInputEvent::IE_Pressed, this, &AABMyCharacter::UpDownP);
+	PlayerInputComponent->BindAction(TEXT("UpDownP"), EInputEvent::IE_Released, this, &AABMyCharacter::UpDownR);
+	PlayerInputComponent->BindAction(TEXT("LeftRightP"), EInputEvent::IE_Pressed, this, &AABMyCharacter::LeftRightP);
+	PlayerInputComponent->BindAction(TEXT("LeftRightP"), EInputEvent::IE_Released, this, &AABMyCharacter::LeftRightR);
+
 	PlayerInputComponent->BindAxis(TEXT("UpDown"), this, &AABMyCharacter::UpDown);
 	PlayerInputComponent->BindAxis(TEXT("LeftRight"), this, &AABMyCharacter::LeftRight);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AABMyCharacter::LookUp);
@@ -278,6 +283,26 @@ void AABMyCharacter::ViewChange()
 		}
 		break;	
 	}
+}
+
+void AABMyCharacter::UpDownP()
+{
+	UpDownEvent.ExecuteIfBound(true);
+}
+
+void AABMyCharacter::UpDownR()
+{
+	UpDownEvent.ExecuteIfBound(false);
+}
+
+void AABMyCharacter::LeftRightP()
+{
+	LeftRightEvent.ExecuteIfBound(true);
+}
+
+void AABMyCharacter::LeftRightR()
+{
+	LeftRightEvent.ExecuteIfBound(false);
 }
 
 void AABMyCharacter::AttackSword()

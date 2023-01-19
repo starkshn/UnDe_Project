@@ -23,6 +23,7 @@ public:
 	UABMyAnim();
 
 public:
+	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
@@ -56,6 +57,16 @@ private:
 public:
 	void SetCurrentWeapon(int32 Weapon) { ABLOG(Warning, TEXT("Weapon : %d"), Weapon); CurrentWeapon = Weapon; }
 	void SetCrouch(int32 Crouch) { IsCrouch = Crouch; }
+	void SetUpDownEvent(bool Event) 
+	{ 
+		UpDownEvent = Event;
+		ABLOG(Warning, TEXT("%d"), UpDownEvent);
+	}
+	void SetLeftRightEvent(bool Event) 
+	{ 
+		LeftRightEvent = Event; 
+		ABLOG(Warning, TEXT("%d"), LeftRightEvent);
+	}
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
@@ -71,10 +82,13 @@ private:
 	int32 IsCrouch;
 
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	float AxisValueX;
+	bool UpDownEvent;
 
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	float AxisValueY;
+
+	bool LeftRightEvent;
+
+	// ###############################
 
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* AttackMontage_Sword;
@@ -86,5 +100,7 @@ private:
 	UAnimMontage* EquipCheckMontage_Rifile;
 
 private:
-	AABMyCharacter* MyCharacater;
+	class AABMyCharacter* MyCharacater;
+	int32 ForUpDown = 0;
+	int32 ForLeftRight = 0;
 };
