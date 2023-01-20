@@ -41,7 +41,8 @@ AABMyCharacter::AABMyCharacter()
 
 	ArmLengthSpeed = 3.f;
 	ArmRotationSpeed = 10.f;
-	GetCharacterMovement()->JumpZVelocity = 500.f;
+	GetCharacterMovement()->GravityScale = 2.0f;
+	GetCharacterMovement()->JumpZVelocity = 800.f;
 
 	IsAttacking_Sword = false;
 	MaxCombo_Sword = 3;
@@ -97,7 +98,7 @@ void AABMyCharacter::PostInitializeComponents()
 
 	MyAnim->OnReleaseFinish_Rifile.AddLambda
 	(
-		[this]() -> void { ABLOG_S(Warning); ReleaseRifile(); }
+		[this]() -> void { ReleaseRifile(); }
 	);
 }
 
@@ -154,18 +155,27 @@ void AABMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("ViewChange"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ViewChange);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AABMyCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("AttackSword"), EInputEvent::IE_Pressed, this, &AABMyCharacter::AttackSword);
+	
+	// Crouch
 	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AABMyCharacter::SetCrouch);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Released, this, &AABMyCharacter::SetCrouch);
 
+	// Aiming
+	PlayerInputComponent->BindAction(TEXT("Aiming"), EInputEvent::IE_Pressed, this, &AABMyCharacter::PressedAiming);
+	PlayerInputComponent->BindAction(TEXT("Aiming"), EInputEvent::IE_Released, this, &AABMyCharacter::ReleasedAiming);
+
+	// Weapons
 	PlayerInputComponent->BindAction(TEXT("Hand"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ChangeToHand);
 	PlayerInputComponent->BindAction(TEXT("Sword"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ChangeToSword);
 	PlayerInputComponent->BindAction(TEXT("Rifile"), EInputEvent::IE_Pressed, this, &AABMyCharacter::ChangeToRifile);
 
+	// Delegate For Anim
 	PlayerInputComponent->BindAction(TEXT("UpDownP"), EInputEvent::IE_Pressed, this, &AABMyCharacter::UpDownP);
 	PlayerInputComponent->BindAction(TEXT("UpDownP"), EInputEvent::IE_Released, this, &AABMyCharacter::UpDownR);
 	PlayerInputComponent->BindAction(TEXT("LeftRightP"), EInputEvent::IE_Pressed, this, &AABMyCharacter::LeftRightP);
 	PlayerInputComponent->BindAction(TEXT("LeftRightP"), EInputEvent::IE_Released, this, &AABMyCharacter::LeftRightR);
 
+	// BindAxis (Move)
 	PlayerInputComponent->BindAxis(TEXT("UpDown"), this, &AABMyCharacter::UpDown);
 	PlayerInputComponent->BindAxis(TEXT("LeftRight"), this, &AABMyCharacter::LeftRight);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AABMyCharacter::LookUp);
@@ -258,9 +268,15 @@ void AABMyCharacter::Turn(float NewAxisValue)
 	}
 }
 
+void AABMyCharacter::Jump()
+{
+	if (IsCrouch) return;
+	bPressedJump = true;
+	JumpKeyHoldTime = 0.0f;
+}
+
 void AABMyCharacter::SetCrouch()
 {
-	ABLOG_S(Warning);
 	IsCrouch = (IsCrouch + 1) % 2;
 	// IsCrouch = FMath::Clamp<int32>(IsCrouch + 1, 0, 1);
 	// MyAnim->SetCrouch(IsCrouch);
@@ -305,6 +321,16 @@ void AABMyCharacter::LeftRightR()
 	LeftRightEvent.ExecuteIfBound(false);
 }
 
+void AABMyCharacter::PressedAiming()
+{
+	AimingEvent.ExecuteIfBound(true);
+}
+
+void AABMyCharacter::ReleasedAiming()
+{
+	AimingEvent.ExecuteIfBound(false);
+}
+
 void AABMyCharacter::AttackSword()
 {
 	if (CurrentWeapon != WeaponMode::Sword) return;
@@ -346,9 +372,11 @@ void AABMyCharacter::ChangeToHand()
 {
 	if (CurrentWeapon == WeaponMode::Hand) return;
 
-	SetWeapon(WeaponMode::Hand);
+	/*SetWeapon(WeaponMode::Hand);
 	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
-	Anim->SetCurrentWeapon((int)WeaponMode::Hand);
+	Anim->SetCurrentWeapon((int)WeaponMode::Hand);*/
+	SetWeapon(WeaponMode::Hand);
+	WeaponChangedEvent.ExecuteIfBound((int32)WeaponMode::Hand);
 }
 
 void AABMyCharacter::ChangeToSword()
@@ -356,18 +384,16 @@ void AABMyCharacter::ChangeToSword()
 	if (CurrentWeapon == WeaponMode::Sword) return;
 
 	SetWeapon(WeaponMode::Sword);
-	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
-	Anim->SetCurrentWeapon((int)WeaponMode::Sword);
+	WeaponChangedEvent.ExecuteIfBound((int32)WeaponMode::Sword);
 }
 
 void AABMyCharacter::ChangeToRifile()
 {
-	if (CurrentWeapon == WeaponMode::Rifile) return;
+	if (CurrentWeapon == WeaponMode::Rifle) return;
 
-	SetWeapon(WeaponMode::Rifile);
-	auto Anim = Cast<UABMyAnim>(GetMesh()->GetAnimInstance());
-	Anim->SetCurrentWeapon((int)WeaponMode::Rifile);
-	Anim->PlayEquipMontage_Rifile();
+	SetWeapon(WeaponMode::Rifle);
+	WeaponChangedEvent.ExecuteIfBound((int32)WeaponMode::Rifle);
+	// Anim->PlayEquipMontage_Rifile();
 }
 
 void AABMyCharacter::EquipRifile()

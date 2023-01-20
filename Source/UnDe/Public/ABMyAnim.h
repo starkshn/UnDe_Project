@@ -30,8 +30,6 @@ public:
 	void PlayAttackMontage_Sword();
 	void JumpToAttackMontageSection_Sword(int32 NewSection);
 
-	void PlayEquipMontage_Rifile();
-
 private:
 	UFUNCTION()
 	void AnimNotify_AttackHitCheck_Sword();
@@ -40,16 +38,16 @@ private:
 	void AnimNotify_NextAttackCheck_Sword();
 
 	UFUNCTION()
-	void AnimNotify_EquipFinish();
+	void AnimNotify_EquipRifle();
 
 	UFUNCTION()
-	void AnimNotify_ReleaseRifile();
+	void AnimNotify_ReleaseRifle();
 
 public:
 	FOnNextAttackCheckDelegate_Sword	OnNextAttackCheck_Sword;
 	FOnAttackHitCheckDelegate_Sword		OnAttackHitCheck_Sword;
 	FOnEquipFinishDelegate_Rifile		OnEquipFinishCheck_Rifile;
-	FOnReleaseFinishDelegate_Rifile OnReleaseFinish_Rifile;
+	FOnReleaseFinishDelegate_Rifile		OnReleaseFinish_Rifile;
 
 private:
 	FName GetAttackMontageSectionName_Sword(int32 Section);
@@ -60,12 +58,10 @@ public:
 	void SetUpDownEvent(bool Event) 
 	{ 
 		UpDownEvent = Event;
-		ABLOG(Warning, TEXT("%d"), UpDownEvent);
 	}
 	void SetLeftRightEvent(bool Event) 
 	{ 
 		LeftRightEvent = Event; 
-		ABLOG(Warning, TEXT("%d"), LeftRightEvent);
 	}
 
 private:
@@ -88,6 +84,9 @@ private:
 
 	bool LeftRightEvent;
 
+	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+
+	bool IsAiming;
 	// ###############################
 
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))

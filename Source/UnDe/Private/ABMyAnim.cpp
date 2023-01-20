@@ -41,6 +41,22 @@ void UABMyAnim::NativeBeginPlay()
 	MyCharacater = Cast<AABMyCharacter>(Pawn);
 	MyCharacater->UpDownEvent.BindUObject(this, &UABMyAnim::SetUpDownEvent);
 	MyCharacater->LeftRightEvent.BindUObject(this, &UABMyAnim::SetLeftRightEvent);
+	MyCharacater->LeftRightEvent.BindUObject(this, &UABMyAnim::SetLeftRightEvent);
+	MyCharacater->AimingEvent.BindLambda
+	(
+		[this](bool v) -> void
+		{
+			IsAiming = v; 
+		}
+	);
+	MyCharacater->WeaponChangedEvent.BindLambda
+	(
+		[this](int32 value) -> void
+		{
+			ABLOG(Warning, TEXT("%d"), value);
+			CurrentWeapon = value;
+		}
+	);
 }
 
 void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -62,20 +78,11 @@ void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
 }
 
 
-
 void UABMyAnim::PlayAttackMontage_Sword()
 {	
 	if (CurrentWeapon == 1)
 	{
 		Montage_Play(AttackMontage_Sword, 1.0f);
-	}
-}
-
-void UABMyAnim::PlayEquipMontage_Rifile()
-{
-	if (CurrentWeapon == 2)
-	{
-		Montage_Play(EquipCheckMontage_Rifile, 1.0f);
 	}
 }
 
@@ -96,13 +103,15 @@ void UABMyAnim::AnimNotify_NextAttackCheck_Sword()
 	OnNextAttackCheck_Sword.Broadcast();
 }
 
-void UABMyAnim::AnimNotify_EquipFinish()
+void UABMyAnim::AnimNotify_EquipRifle()
 {
+	ABLOG_S(Warning);
 	OnEquipFinishCheck_Rifile.Broadcast();
 }
 
-void UABMyAnim::AnimNotify_ReleaseRifile()
+void UABMyAnim::AnimNotify_ReleaseRifle()
 {
+	ABLOG_S(Warning);
 	OnReleaseFinish_Rifile.Broadcast();
 }
 

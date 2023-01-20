@@ -8,6 +8,8 @@
 
 DECLARE_DELEGATE_OneParam(FOnPressedUpDown, bool);
 DECLARE_DELEGATE_OneParam(FOnPressedLeftRight, bool);
+DECLARE_DELEGATE_OneParam(FOnAimingEvent, bool);
+DECLARE_DELEGATE_OneParam(FOnWeaponChangedEvent, int32);
 
 UCLASS()
 class UNDE_API AABMyCharacter : public ACharacter
@@ -30,14 +32,16 @@ protected:
 
 	enum class WeaponMode
 	{
-		Hand,
-		Sword,
-		Rifile,
+		Sword = 1,
+		Rifle = 2,
+		Hand = 3,
 	};
 
 public:
-	FOnPressedUpDown	UpDownEvent;
-	FOnPressedLeftRight LeftRightEvent;
+	FOnPressedUpDown		UpDownEvent;
+	FOnPressedLeftRight		LeftRightEvent;
+	FOnAimingEvent			AimingEvent;
+	FOnWeaponChangedEvent	WeaponChangedEvent;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -84,11 +88,14 @@ private:
 	void LeftRight(float NewAxisValue);
 	void LookUp(float NewAxisValue);
 	void Turn(float NewAxisValue);
+	void Jump();
 
 	void UpDownP();
 	void UpDownR();
 	void LeftRightP();
 	void LeftRightR();
+	void PressedAiming();
+	void ReleasedAiming();
 
 	void AttackSword();
 	void AttackStartComboState_Sword();
@@ -105,7 +112,7 @@ private:
 	UFUNCTION()
 	void OnAttackSwordMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-protected:
+private:
 	void SetControlMode(ControlMode ControlMode);
 	void SetWeapon(WeaponMode WeaponMode) { CurrentWeapon = WeaponMode; }
 	void SetCrouch();
