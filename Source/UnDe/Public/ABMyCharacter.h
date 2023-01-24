@@ -56,6 +56,9 @@ public:
 	UPROPERTY()
 	class UABMyAnim* MyAnim;
 
+	UPROPERTY(VisibleAnywhere, Category = Vault)
+	UActorComponent* ValutingComponent;
+
 public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	bool IsAttacking_Sword;
@@ -89,6 +92,7 @@ private:
 	void LookUp(float NewAxisValue);
 	void Turn(float NewAxisValue);
 	void Jump();
+	void Vaulting();
 
 	void UpDownP();
 	void UpDownR();

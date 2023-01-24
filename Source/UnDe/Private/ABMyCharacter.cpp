@@ -16,6 +16,7 @@ AABMyCharacter::AABMyCharacter()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
+	ValutingComponent = CreateDefaultSubobject<UActorComponent>(TEXT("VAULT"));
 
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 	Camera->SetupAttachment(SpringArm);
@@ -30,10 +31,16 @@ AABMyCharacter::AABMyCharacter()
 		GetMesh()->SetSkeletalMesh(MY_Mesh.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> MY_Anim(TEXT("AnimBlueprint'/Game/Blueprints/BP_MyCharacter.BP_MyCharacter_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> MY_Anim(TEXT("AnimBlueprint'/Game/BlueprintsClass/BP_MyCharacterAnim.BP_MyCharacterAnim_C'"));
 	if (MY_Anim.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(MY_Anim.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<UActorComponent> BP_Vaulting(TEXT("Blueprint'/Game/BlueprintsClass/BP_VaultingComponent.BP_VaultingComponent_C'"));
+	if (BP_Vaulting.Succeeded())
+	{
+		ValutingComponent = (UActorComponent*)BP_Vaulting.Class->GetDefaultObject();
 	}
 
 	// Set
@@ -123,7 +130,6 @@ void AABMyCharacter::Tick(float DeltaTime)
 			SpringArm->SetRelativeRotation(r);
 		}
 		break;
-
 	}
 
 	switch (CurrentControlMode)
