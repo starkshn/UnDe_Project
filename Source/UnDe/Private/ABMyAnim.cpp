@@ -73,6 +73,7 @@ void UABMyAnim::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			IsInAir = Character->GetMovementComponent()->IsFalling();
 			IsCrouch = Character->GetCrouch();
+			VaultState = Character->VaultState;
 		}
 	}
 }

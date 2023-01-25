@@ -48,8 +48,8 @@ AABMyCharacter::AABMyCharacter()
 
 	ArmLengthSpeed = 3.f;
 	ArmRotationSpeed = 10.f;
-	GetCharacterMovement()->GravityScale = 2.0f;
-	GetCharacterMovement()->JumpZVelocity = 800.f;
+	GetCharacterMovement()->GravityScale = 1.0f;
+	GetCharacterMovement()->JumpZVelocity = 500;
 
 	IsAttacking_Sword = false;
 	MaxCombo_Sword = 3;

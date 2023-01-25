@@ -56,7 +56,7 @@ public:
 	UPROPERTY()
 	class UABMyAnim* MyAnim;
 
-	UPROPERTY(VisibleAnywhere, Category = Vault)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Vault)
 	UActorComponent* ValutingComponent;
 
 public:
@@ -84,6 +84,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = WEAPON)
 	class AABRifile* CurRifile;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Vault)
+	int32 VaultState;
+
 private:
 	void ViewChange();
 
@@ -92,7 +95,7 @@ private:
 	void LookUp(float NewAxisValue);
 	void Turn(float NewAxisValue);
 	void Jump();
-	void Vaulting();
+	void VaultingFunc();
 
 	void UpDownP();
 	void UpDownR();

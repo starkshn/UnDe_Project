@@ -30,6 +30,7 @@ public:
 	void PlayAttackMontage_Sword();
 	void JumpToAttackMontageSection_Sword(int32 NewSection);
 
+
 private:
 	UFUNCTION()
 	void AnimNotify_AttackHitCheck_Sword();
@@ -84,9 +85,15 @@ private:
 
 	bool LeftRightEvent;
 
-	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintreadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
 
 	bool IsAiming;
+
+	UPROPERTY(EditAnywhere, BlueprintreadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+
+	int32 VaultState;
+
+
 	// ###############################
 
 	UPROPERTY(EditAnywhere, BlueprintreadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
